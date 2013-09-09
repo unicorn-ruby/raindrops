@@ -12,6 +12,14 @@ class TestLinuxIPv6 < Test::Unit::TestCase
 
   TEST_ADDR = ENV["TEST_HOST6"] || "::1"
 
+  def setup
+    @to_close = []
+  end
+
+  def teardown
+    @to_close.each { |io| io.close unless io.closed? }
+  end
+
   def test_tcp
     s = TCPServer.new(TEST_ADDR, 0)
     port = s.addr[1]
