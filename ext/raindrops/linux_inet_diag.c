@@ -465,12 +465,12 @@ static VALUE diag(void *ptr)
 		}
 	}
 out:
-	{
+	/* prepare to raise, free memory before reacquiring GVL */
+	if (err && args->table) {
 		int save_errno = errno;
-		if (err && args->table) {
-			st_foreach(args->table, st_free_data, 0);
-			st_free_table(args->table);
-		}
+
+		st_foreach(args->table, st_free_data, 0);
+		st_free_table(args->table);
 		errno = save_errno;
 	}
 	return (VALUE)err;
@@ -584,6 +584,10 @@ static void gen_bytecode(struct iovec *iov, union any_addr *inet)
 	}
 }
 
+/*
+ * n.b. we may safely raise here because an error will cause diag()
+ * to free args->table
+ */
 static void nl_errcheck(VALUE r)
 {
 	const char *err = (const char *)r;
