@@ -1,11 +1,10 @@
 = raindrops - real-time stats for preforking Rack servers
 
-Raindrops is a real-time stats toolkit to show statistics for Rack HTTP
-servers.  It is designed for preforking servers such as Rainbows! and
-Unicorn, but should support any Rack HTTP server under Ruby 2.0, 1.9,
-1.8 and Rubinius on platforms supporting POSIX shared memory.  It may
-also be used as a generic scoreboard for sharing atomic counters across
-multiple processes.
+raindrops is a real-time stats toolkit to show statistics for Rack HTTP
+servers.  It is designed for preforking servers such as unicorn, but
+should support any Rack HTTP server on platforms supporting POSIX shared
+memory.  It may also be used as a generic scoreboard for sharing atomic
+counters across multiple processes.
 
 == Features
 
@@ -87,11 +86,7 @@ git itself.  See the Documentation/SubmittingPatches document
 distributed with git on on patch submission guidelines to follow.  Just
 don't email the git mailing list or maintainer with raindrops patches.
 
-raindrops is currently dual-licensed under the LGPLv2.1 and LGPLv3.  To
-allow for a transition to future versions of the LGPL, contributors are
-required to sign-off changes allowing allowing the project leader to
-relicense raindrops under newer versions of the LGPL (which should be
-similar in spirit to the existing LGPL).
+raindrops is licensed under the LGPL+2.1 or later:
 
 == Contact
 
