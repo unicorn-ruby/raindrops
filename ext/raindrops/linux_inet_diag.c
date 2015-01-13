@@ -216,7 +216,7 @@ static const char *addr_any(sa_family_t family)
 static void bug_warn(void)
 {
 	fprintf(stderr, "Please report how you produced this at "\
-	                "raindrops@librelist.org\n");
+	                "raindrops-public@bogomips.org\n");
 	fflush(stderr);
 }
 
