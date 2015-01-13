@@ -5,7 +5,7 @@
 Makefile
 /GIT-VERSION-FILE
 /local.mk
-/NEWS
+/NEWS*
 /ChangeLog
 /.manifest
 /man
