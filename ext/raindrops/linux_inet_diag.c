@@ -232,8 +232,8 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 	char *key, *port, *old_key;
 	size_t alloca_len;
 	struct listen_stats *stats;
-	size_t keylen;
-	size_t portlen = sizeof("65535");
+	socklen_t keylen;
+	socklen_t portlen = (socklen_t)sizeof("65535");
 	union any_addr sa;
 	socklen_t len = sizeof(struct sockaddr_storage);
 	int rc;
@@ -274,8 +274,8 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 		*key = 0;
 	}
 
-	keylen = strlen(key);
-	portlen = strlen(port);
+	keylen = (socklen_t)strlen(key);
+	portlen = (socklen_t)strlen(port);
 
 	switch (sa.ss.ss_family) {
 	case AF_INET:
@@ -396,8 +396,8 @@ static void prep_diag_args(
 
 	nladdr->nl_family = AF_NETLINK;
 
-	req->nlh.nlmsg_len = sizeof(struct diag_req) +
-	                    RTA_LENGTH(args->iov[2].iov_len);
+	req->nlh.nlmsg_len = (unsigned int)(sizeof(struct diag_req) +
+	                    RTA_LENGTH(args->iov[2].iov_len));
 	req->nlh.nlmsg_type = TCPDIAG_GETSOCK;
 	req->nlh.nlmsg_flags = NLM_F_ROOT | NLM_F_MATCH | NLM_F_REQUEST;
 	req->nlh.nlmsg_pid = getpid();
