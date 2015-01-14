@@ -1,4 +1,5 @@
 #include <ruby.h>
+#include <stdarg.h>
 #ifdef HAVE_RUBY_ST_H
 #  include <ruby/st.h>
 #else
@@ -213,8 +214,14 @@ static const char *addr_any(sa_family_t family)
 	return ipv6;
 }
 
-static void bug_warn(void)
+static void bug_warn_nogvl(const char *fmt, ...)
 {
+	va_list ap;
+
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+
 	fprintf(stderr, "Please report how you produced this at "\
 	                "raindrops-public@bogomips.org\n");
 	fflush(stderr);
@@ -263,8 +270,7 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 		assert(0 && "unsupported address family, could that be IPv7?!");
 	}
 	if (rc != 0) {
-		fprintf(stderr, "BUG: getnameinfo: %s\n", gai_strerror(rc));
-		bug_warn();
+		bug_warn_nogvl("BUG: getnameinfo: %s\n", gai_strerror(rc));
 		*key = 0;
 	}
 
@@ -296,8 +302,7 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 				 addr_any(sa.ss.ss_family),
 				 ntohs(r->id.idiag_sport));
 		if (n <= 0) {
-			fprintf(stderr, "BUG: snprintf: %d\n", n);
-			bug_warn();
+			bug_warn_nogvl("BUG: snprintf: %d\n", n);
 		}
 		if (st_lookup(table, (st_data_t)key, (st_data_t *)&stats))
 			return stats;
