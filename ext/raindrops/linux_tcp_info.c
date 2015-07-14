@@ -1,4 +1,4 @@
-#ifdef __linux__
+#if defined(__linux__) && defined(HAVE_LINUX_TCP_H)
 #include <ruby.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -170,4 +170,4 @@ void Init_raindrops_linux_tcp_info(void)
 	TCPI_DEFINE_METHOD(total_retrans);
 }
 #endif /* TCP_INFO */
-#endif /* __linux__ */
+#endif /* defined(__linux__) && defined(HAVE_LINUX_TCP_H) */

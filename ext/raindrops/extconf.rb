@@ -6,6 +6,7 @@ have_func('munmap', 'sys/mman.h') or abort 'munmap() not found'
 
 $CPPFLAGS += " -D_GNU_SOURCE "
 have_func('mremap', 'sys/mman.h')
+have_header('linux/tcp.h')
 
 $CPPFLAGS += " -D_BSD_SOURCE "
 have_func("getpagesize", "unistd.h")
