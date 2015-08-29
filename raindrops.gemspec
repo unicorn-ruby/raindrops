@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('io-extra', [ '~> 1.2', '>= 1.2.3'])
   s.add_development_dependency('posix_mq', '~> 2.0')
   s.add_development_dependency('rack', '~> 1.2')
-  s.add_development_dependency('unicorn', '>= 0.98')
   s.add_development_dependency('olddoc', '~> 1.0')
 
   s.licenses = %w(LGPL-2.1+)
