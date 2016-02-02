@@ -13,10 +13,6 @@ require "socket"
 # - Kgio::TCPServer#kgio_accept
 # - Kgio::TCPServer#kgio_tryaccept
 module Raindrops::Aggregate::LastDataRecv
-  # :stopdoc:
-  TCP_Info = Raindrops::TCP_Info
-  # :startdoc:
-
   # The integer value of +last_data_recv+ is sent to this object.
   # This is usually a duck type compatible with the \Aggregate class,
   # but can be *anything* that accepts the *<<* method.
@@ -78,7 +74,7 @@ module Raindrops::Aggregate::LastDataRecv
   # +last_data_recv+ to be accurate
   def count!(io)
     if io
-      x = TCP_Info.new(io)
+      x = Raindrops::TCP_Info.new(io)
       @raindrops_aggregate << x.last_data_recv
     end
     io

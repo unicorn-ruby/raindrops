@@ -81,7 +81,6 @@ class Raindrops::Middleware
   end
 
   # :stopdoc:
-  PATH_INFO = "PATH_INFO"
   require "raindrops/middleware/proxy"
   # :startdoc:
 
@@ -111,7 +110,7 @@ class Raindrops::Middleware
 
   # standard Rack endpoint
   def call(env) # :nodoc:
-    env[PATH_INFO] == @path and return stats_response
+    env['PATH_INFO'] == @path and return stats_response
     begin
       @stats.incr_calling
 
