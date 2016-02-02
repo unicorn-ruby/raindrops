@@ -47,6 +47,7 @@ module Raindrops::Linux
         if File.symlink?(path)
           link = path
           path = Pathname.new(link).realpath.to_s
+          path.force_encoding(Encoding::BINARY) if defined?(Encoding)
           rv[link] = rv[path] # vivify ListenerStats
         else
           rv[path] # vivify ListenerStats
