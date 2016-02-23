@@ -8,7 +8,6 @@
 # Instead of snapshotting, Raindrops::Aggregate::LastDataRecv may be used
 # to aggregate statistics from +all+ accepted sockets as they arrive
 # based on the +last_data_recv+ field in Raindrops::TCP_Info
-require 'pathname'
 
 module Raindrops::Linux
 
@@ -46,7 +45,7 @@ module Raindrops::Linux
         path.force_encoding(Encoding::BINARY) if defined?(Encoding)
         if File.symlink?(path)
           link = path
-          path = Pathname.new(link).realpath.to_s
+          path = File.readlink(link)
           path.force_encoding(Encoding::BINARY) if defined?(Encoding)
           rv[link] = rv[path] # vivify ListenerStats
         else
