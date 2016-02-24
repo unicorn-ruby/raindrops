@@ -47,7 +47,7 @@ SRC
 end or have_header('atomic_ops.h') or abort <<-SRC
 
 libatomic_ops is required if GCC 4+ is not used.
-See http://www.hpl.hp.com/research/linux/atomic_ops/
+See https://github.com/ivmai/libatomic_ops
 
 Users of Debian-based distros may run:
 
