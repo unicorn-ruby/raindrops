@@ -40,12 +40,12 @@ and "tcp_diag" kernel modules are loaded as they do not autoload correctly
 We recommend GCC 4+ (or compatible) to support the __sync builtins
 (__sync_{add,sub}_and_fetch()):
 
-	http://gcc.gnu.org/onlinedocs/gcc/_005f_005fsync-Builtins.html
+http://gcc.gnu.org/onlinedocs/gcc/_005f_005fsync-Builtins.html
 
 For non-GCC 4+ users, we also support compilation with the libatomic_ops
 package starting with Raindrops 0.4.0:
 
-	https://github.com/ivmai/libatomic_ops
+https://github.com/ivmai/libatomic_ops
 
 If you're using a packaged Ruby distribution, make sure you have a C
 compiler and the matching Ruby development libraries and headers.
