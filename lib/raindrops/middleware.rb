@@ -77,8 +77,7 @@ class Raindrops::Middleware
   # and both counters are updated atomically.
   #
   # This is supported on all operating systems supported by Raindrops
-  class Stats < Raindrops::Struct.new(:calling, :writing)
-  end
+  Stats = Raindrops::Struct.new(:calling, :writing)
 
   # :stopdoc:
   require "raindrops/middleware/proxy"
