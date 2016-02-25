@@ -618,6 +618,13 @@ static VALUE tcp_stats(struct nogvl_args *args, VALUE addr)
 	return rb_listen_stats(&args->stats);
 }
 
+static int drop_placeholders(st_data_t k, st_data_t v, st_data_t ign)
+{
+	if ((VALUE)v == Qtrue)
+		return ST_DELETE;
+	return ST_CONTINUE;
+}
+
 /*
  * call-seq:
  *      Raindrops::Linux.tcp_listener_stats([addrs[, sock]]) => hash
@@ -658,10 +665,9 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	case T_ARRAY: {
 		long i;
 		long len = RARRAY_LEN(addrs);
-		VALUE cur;
 
 		if (len == 1) {
-			cur = rb_ary_entry(addrs, 0);
+			VALUE cur = rb_ary_entry(addrs, 0);
 
 			rb_hash_aset(rv, cur, tcp_stats(&args, cur));
 			return rv;
@@ -671,7 +677,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 			VALUE cur = rb_ary_entry(addrs, i);
 
 			parse_addr(&check, cur);
-			rb_hash_aset(rv, cur, Qtrue);
+			rb_hash_aset(rv, cur, Qtrue /* placeholder */);
 		}
 		/* fall through */
 	}
@@ -688,6 +694,9 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 
 	st_foreach(args.table, NIL_P(addrs) ? st_to_hash : st_AND_hash, rv);
 	st_free_table(args.table);
+
+	if (RHASH_SIZE(rv) > 1)
+		rb_hash_foreach(rv, drop_placeholders, Qfalse);
 
 	/* let GC deal with corner cases */
 	if (argc < 2) rb_io_close(sock);

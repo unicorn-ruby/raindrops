@@ -214,6 +214,13 @@ class TestLinux < Test::Unit::TestCase
     assert_equal 0, stats[addr1].active
     assert_equal 1, stats[addr2].queued
     assert_equal 1, stats[addr2].active
+
+    # make sure we don't leave "true" placeholders in results if a
+    # listener becomes invalid (even momentarily).
+    s2.close
+    stats = tcp_listener_stats(addrs)
+    assert stats.values.all? { |x| x.instance_of?(Raindrops::ListenStats) },
+      "placeholders left: #{stats.inspect}"
   end
 
   # tries to overflow buffers
