@@ -244,10 +244,10 @@ class Raindrops::Watcher
   def histogram_txt(agg)
     updated_at, reset_at, agg, current, peak = *agg
     headers = agg_to_hash(reset_at, agg, current, peak)
-    body = agg.to_s
+    body = agg.to_s # 7-bit ASCII-clean
     headers["Content-Type"] = "text/plain"
     headers["Expires"] = (updated_at + @delay).httpdate
-    headers["Content-Length"] = bytesize(body).to_s
+    headers["Content-Length"] = body.size.to_s
     [ 200, headers, [ body ] ]
   end
 
@@ -265,7 +265,7 @@ class Raindrops::Watcher
       "</body>"
     headers["Content-Type"] = "text/html"
     headers["Expires"] = (updated_at + @delay).httpdate
-    headers["Content-Length"] = bytesize(body).to_s
+    headers["Content-Length"] = body.size.to_s
     [ 200, headers, [ body ] ]
   end
 
@@ -364,7 +364,7 @@ class Raindrops::Watcher
         "for more information and options." \
       "</p>" \
       "</body></html>"
-    headers["Content-Length"] = bytesize(body).to_s
+    headers["Content-Length"] = body.size.to_s
     [ 200, headers, [ body ] ]
   end
 
@@ -382,7 +382,7 @@ class Raindrops::Watcher
       q = Rack::Utils.parse_query env["QUERY_STRING"]
       @active_min = q["active_min"].to_i
       @queued_min = q["queued_min"].to_i
-      len = Rack::Utils.bytesize(addr)
+      len = addr.size
       len = 35 if len > 35
       @fmt = "%20s % #{len}s % 10u % 10u\n"
       case env["HTTP_VERSION"]
