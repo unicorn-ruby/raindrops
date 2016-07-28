@@ -214,6 +214,10 @@ static const char *addr_any(sa_family_t family)
 	return ipv6;
 }
 
+#ifdef __GNUC__
+static void bug_warn_nogvl(const char *, ...)
+	__attribute__((format(printf,1,2)));
+#endif
 static void bug_warn_nogvl(const char *fmt, ...)
 {
 	va_list ap;
