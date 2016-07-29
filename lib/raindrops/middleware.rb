@@ -62,9 +62,9 @@ require 'raindrops'
 # = Demo Server
 #
 # There is a server running this middleware (and Watcher) at
-#  http://raindrops-demo.bogomips.org/_raindrops
+#  https://raindrops-demo.bogomips.org/_raindrops
 #
-# Also check out the Watcher demo at http://raindrops-demo.bogomips.org/
+# Also check out the Watcher demo at https://raindrops-demo.bogomips.org/
 #
 # The demo server is only limited to 30 users, so be sure not to abuse it
 # by using the /tail/ endpoint too much.

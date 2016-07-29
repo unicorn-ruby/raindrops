@@ -1,6 +1,6 @@
 # -*- encoding: binary -*-
 #
-# raindrops may use the {aggregate}[http://github.com/josephruscio/aggregate]
+# raindrops may use the {aggregate}[https://github.com/josephruscio/aggregate]
 # RubyGem to aggregate statistics from TCP_Info lookups.
 module Raindrops::Aggregate
   autoload :PMQ, "raindrops/aggregate/pmq"

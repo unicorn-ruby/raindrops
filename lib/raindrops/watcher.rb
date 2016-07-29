@@ -8,7 +8,7 @@ require "aggregate"
 # Raindrops::Watcher is a stand-alone Rack application for watching
 # any number of TCP and UNIX listeners (all of them by default).
 #
-# It depends on the {Aggregate RubyGem}[http://rubygems.org/gems/aggregate]
+# It depends on the {Aggregate RubyGem}[https://rubygems.org/gems/aggregate]
 #
 # In your Rack config.ru:
 #
@@ -35,28 +35,28 @@ require "aggregate"
 # Returns a plain text summary + histogram with X-* HTTP headers for
 # active connections.
 #
-# e.g.: curl http://raindrops-demo.bogomips.org/active/0.0.0.0%3A80.txt
+# e.g.: curl https://raindrops-demo.bogomips.org/active/0.0.0.0%3A80.txt
 #
 # === GET /active/$LISTENER.html
 #
 # Returns an HTML summary + histogram with X-* HTTP headers for
 # active connections.
 #
-# e.g.: curl http://raindrops-demo.bogomips.org/active/0.0.0.0%3A80.html
+# e.g.: curl https://raindrops-demo.bogomips.org/active/0.0.0.0%3A80.html
 #
 # === GET /queued/$LISTENER.txt
 #
 # Returns a plain text summary + histogram with X-* HTTP headers for
 # queued connections.
 #
-# e.g.: curl http://raindrops-demo.bogomips.org/queued/0.0.0.0%3A80.txt
+# e.g.: curl https://raindrops-demo.bogomips.org/queued/0.0.0.0%3A80.txt
 #
 # === GET /queued/$LISTENER.html
 #
 # Returns an HTML summary + histogram with X-* HTTP headers for
 # queued connections.
 #
-# e.g.: curl http://raindrops-demo.bogomips.org/queued/0.0.0.0%3A80.html
+# e.g.: curl https://raindrops-demo.bogomips.org/queued/0.0.0.0%3A80.html
 #
 # === POST /reset/$LISTENER
 #
@@ -95,9 +95,9 @@ require "aggregate"
 #
 # = Demo Server
 #
-# There is a server running this app at http://raindrops-demo.bogomips.org/
+# There is a server running this app at https://raindrops-demo.bogomips.org/
 # The Raindrops::Middleware demo is also accessible at
-# http://raindrops-demo.bogomips.org/_raindrops
+# https://raindrops-demo.bogomips.org/_raindrops
 #
 # The demo server is only limited to 30 users, so be sure not to abuse it
 # by using the /tail/ endpoint too much.
@@ -106,7 +106,7 @@ class Raindrops::Watcher
   attr_reader :snapshot
   include Rack::Utils
   include Raindrops::Linux
-  DOC_URL = "http://raindrops.bogomips.org/Raindrops/Watcher.html"
+  DOC_URL = "https://bogomips.org/raindrops/Raindrops/Watcher.html"
   Peak = Struct.new(:first, :last)
 
   def initialize(opts = {})

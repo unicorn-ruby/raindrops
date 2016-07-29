@@ -40,7 +40,7 @@ and "tcp_diag" kernel modules are loaded as they do not autoload correctly
 We recommend GCC 4+ (or compatible) to support the __sync builtins
 (__sync_{add,sub}_and_fetch()):
 
-http://gcc.gnu.org/onlinedocs/gcc/_005f_005fsync-Builtins.html
+https://gcc.gnu.org/onlinedocs/gcc/_005f_005fsync-Builtins.html
 
 For non-GCC 4+ users, we also support compilation with the libatomic_ops
 package starting with Raindrops 0.4.0:
@@ -53,12 +53,6 @@ compiler and the matching Ruby development libraries and headers.
 If you use RubyGems:
 
     gem install raindrops
-
-Otherwise grab the latest tarball from:
-
-http://raindrops.bogomips.org/files/
-
-Unpack it, and run "ruby setup.rb"
 
 == Usage
 
@@ -77,7 +71,7 @@ You can get the latest source via git from the following locations:
 You may browse the code from the web and download the latest snapshot
 tarballs here:
 
-* http://bogomips.org/raindrops.git
+* https://bogomips.org/raindrops.git
 * http://repo.or.cz/w/raindrops.git (gitweb)
 
 Inline patches (from "git format-patch") to the mailing list are
@@ -96,7 +90,7 @@ raindrops is licensed under the LGPL-2.1+
 All feedback (bug reports, user/development discussion, patches, pull
 requests) go to the mailing list: mailto:raindrops-public@bogomips.org
 
-Mailing list archives are available over HTTP and NNTP:
+Mailing list archives are available over HTTPS and NNTP:
 
-http://bogomips.org/raindrops-public/
-nntp://news.public-inbox.org/inbox.comp.lang.ruby.raindrops
+* https://bogomips.org/raindrops-public/
+* nntp://news.public-inbox.org/inbox.comp.lang.ruby.raindrops

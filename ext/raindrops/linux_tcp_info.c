@@ -126,7 +126,7 @@ void Init_raindrops_linux_tcp_info(void)
 	 * - rcv_space
 	 * - total_retrans
 	 *
-	 * http://kernel.org/doc/man-pages/online/pages/man7/tcp.7.html
+	 * https://kernel.org/doc/man-pages/online/pages/man7/tcp.7.html
 	 */
 	cTCP_Info = rb_define_class_under(cRaindrops, "TCP_Info", rb_cObject);
 	rb_define_alloc_func(cTCP_Info, alloc);
