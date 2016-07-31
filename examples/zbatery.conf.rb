@@ -1,6 +1,9 @@
 # Used for running Raindrops::Watcher, which requires a multi-threaded
 # Rack server capable of streaming a response.  Threads must be used,
-# so Zbatery is recommended: http://zbatery.bogomip.org/
+# so any multi-threaded Rack server may be used.
+# zbatery was recommended in the past, but it is abandoned
+# <http://zbatery.bogomip.org/>.
+# yahns may work as an alternative (see yahns.conf.rb in this dir)
 Rainbows! do
   use :ThreadSpawn
 end
