@@ -131,6 +131,19 @@ void Init_raindrops_linux_tcp_info(void)
 	cTCP_Info = rb_define_class_under(cRaindrops, "TCP_Info", rb_cObject);
 	rb_define_alloc_func(cTCP_Info, alloc);
 	rb_define_private_method(cTCP_Info, "initialize", init, 1);
+
+	/*
+	 * Document-method: Raindrops::TCP_Info#get!
+	 *
+	 * call-seq:
+	 *
+	 *	info = Raindrops::TCP_Info.new(tcp_socket)
+	 *	info.get!(tcp_socket)
+	 *
+	 * Update an existing TCP_Info objects with the latest stats
+	 * from the given socket.  This even allows sharing TCP_Info
+	 * objects between different sockets to avoid garbage.
+	 */
 	rb_define_method(cTCP_Info, "get!", init, 1);
 
 #define TCPI_DEFINE_METHOD(x) \
