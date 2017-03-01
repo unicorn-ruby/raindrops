@@ -709,11 +709,12 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 
 void Init_raindrops_linux_inet_diag(void)
 {
-	VALUE cRaindrops = rb_const_get(rb_cObject, rb_intern("Raindrops"));
+	VALUE cRaindrops = rb_define_class("Raindrops", rb_cObject);
 	VALUE mLinux = rb_define_module_under(cRaindrops, "Linux");
+	VALUE Socket;
 
 	rb_require("socket");
-	cIDSock = rb_const_get(rb_cObject, rb_intern("Socket"));
+	Socket = rb_const_get(rb_cObject, rb_intern("Socket"));
 	id_new = rb_intern("new");
 
 	/*
@@ -722,7 +723,7 @@ void Init_raindrops_linux_inet_diag(void)
 	 * This is a subclass of +Socket+ specifically for talking
 	 * to the inet_diag facility of Netlink.
 	 */
-	cIDSock = rb_define_class_under(cRaindrops, "InetDiagSocket", cIDSock);
+	cIDSock = rb_define_class_under(cRaindrops, "InetDiagSocket", Socket);
 	rb_define_singleton_method(cIDSock, "new", ids_s_new, 0);
 
 	cListenStats = rb_const_get(cRaindrops, rb_intern("ListenStats"));

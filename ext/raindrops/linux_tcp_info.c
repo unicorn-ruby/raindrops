@@ -77,7 +77,7 @@ static VALUE init(VALUE self, VALUE io)
 
 void Init_raindrops_linux_tcp_info(void)
 {
-	VALUE cRaindrops = rb_const_get(rb_cObject, rb_intern("Raindrops"));
+	VALUE cRaindrops = rb_define_class("Raindrops", rb_cObject);
 	VALUE cTCP_Info;
 
 	/*
