@@ -38,7 +38,7 @@ struct raindrops {
 };
 
 /* called by GC */
-static void gcfree(void *ptr)
+static void rd_free(void *ptr)
 {
 	struct raindrops *r = ptr;
 
@@ -51,11 +51,24 @@ static void gcfree(void *ptr)
 	xfree(ptr);
 }
 
+static size_t rd_memsize(const void *ptr)
+{
+	const struct raindrops *r = ptr;
+
+	return r->drops == MAP_FAILED ? 0 : raindrop_size * r->capa;
+}
+
+static const rb_data_type_t rd_type = {
+	"raindrops",
+	{ NULL, rd_free, rd_memsize, /* reserved */ },
+	/* parent, data, [ flags ] */
+};
+
 /* automatically called at creation (before initialize) */
 static VALUE alloc(VALUE klass)
 {
 	struct raindrops *r;
-	VALUE rv = Data_Make_Struct(klass, struct raindrops, NULL, gcfree, r);
+	VALUE rv = TypedData_Make_Struct(klass, struct raindrops, &rd_type, r);
 
 	r->drops = MAP_FAILED;
 	return rv;
@@ -65,7 +78,7 @@ static struct raindrops *get(VALUE self)
 {
 	struct raindrops *r;
 
-	Data_Get_Struct(self, struct raindrops, r);
+	TypedData_Get_Struct(self, struct raindrops, &rd_type, r);
 
 	if (r->drops == MAP_FAILED)
 		rb_raise(rb_eStandardError, "invalid or freed Raindrops");

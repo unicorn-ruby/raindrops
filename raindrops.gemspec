@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.files = manifest
   s.homepage = Olddoc.config['rdoc_url']
   s.summary = summary
+  s.required_ruby_version = '>= 1.9.3'
   s.test_files = test_files
   s.add_development_dependency('aggregate', '~> 0.2')
   s.add_development_dependency('test-unit', '~> 3.0')

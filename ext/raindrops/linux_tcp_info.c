@@ -46,12 +46,22 @@ TCPI_ATTR_READER(rcv_rtt)
 TCPI_ATTR_READER(rcv_space)
 TCPI_ATTR_READER(total_retrans)
 
+static size_t tcpi_memsize(const void *ptr)
+{
+	return sizeof(struct tcp_info);
+}
+
+static const rb_data_type_t tcpi_type = {
+	"tcp_info",
+	{ NULL, RUBY_TYPED_DEFAULT_FREE, tcpi_memsize, /* reserved */ },
+	/* parent, data, [ flags ] */
+};
+
 static VALUE alloc(VALUE klass)
 {
-	struct tcp_info *info = xmalloc(sizeof(struct tcp_info));
+	struct tcp_info *info;
 
-	/* Data_Make_Struct has an extra memset 0 which is so wasteful */
-	return Data_Wrap_Struct(klass, NULL, -1, info);
+	return TypedData_Make_Struct(klass, struct tcp_info, &tcpi_type, info);
 }
 
 /*
