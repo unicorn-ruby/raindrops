@@ -3,7 +3,7 @@ require "raindrops"
 pmq = begin
   Raindrops::Aggregate::PMQ
 rescue LoadError => e
-  warn "W: #{e} skipping test"
+  warn "W: #{e} skipping #{__FILE__}"
   false
 end
 if RUBY_VERSION.to_f < 1.9

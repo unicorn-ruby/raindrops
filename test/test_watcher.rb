@@ -2,6 +2,11 @@
 require "test/unit"
 require "rack"
 require "raindrops"
+begin
+  require 'aggregate'
+rescue LoadError => e
+  warn "W: #{e} skipping #{__FILE__}"
+end
 
 class TestWatcher < Test::Unit::TestCase
   TEST_ADDR = ENV['UNICORN_TEST_ADDR'] || '127.0.0.1'
@@ -178,4 +183,4 @@ class TestWatcher < Test::Unit::TestCase
     assert_equal queued_before, headers["X-Last-Peak-At"], "should not change"
     assert_equal start, headers["X-First-Peak-At"]
   end
-end if RUBY_PLATFORM =~ /linux/
+end if RUBY_PLATFORM =~ /linux/ && defined?(Aggregate)
