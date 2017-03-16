@@ -153,7 +153,7 @@ class Raindrops::Aggregate::PMQ
       Marshal.load(synchronize(@rd, RDLOCK) do |rd|
         dst = StringIO.new
         dst.binmode
-        IO.copy_stream(rd, dst, rd.stat.size, 0)
+        IO.copy_stream(rd, dst, rd.size, 0)
         dst.string
       end)
     end
