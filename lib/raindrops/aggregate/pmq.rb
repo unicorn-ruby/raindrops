@@ -3,8 +3,8 @@ require "tempfile"
 require "aggregate"
 require "posix_mq"
 require "fcntl"
-require "io/extra"
 require "thread"
+require "stringio"
 
 # \Aggregate + POSIX message queues support for Ruby 1.9 and \Linux
 #
@@ -19,7 +19,6 @@ require "thread"
 # or libraries:
 #
 # * aggregate (tested with 0.2.2)
-# * io-extra  (tested with 1.2.3)
 # * posix_mq  (tested with 1.0.0)
 #
 # == Design
@@ -84,6 +83,7 @@ class Raindrops::Aggregate::PMQ
       @wr = File.open(t.path, "wb")
       @rd = File.open(t.path, "rb")
     end
+    @wr.sync = true
     @cached_aggregate = @aggregate
     flush_master
     @mq_send = if opts[:lossy]
@@ -151,7 +151,10 @@ class Raindrops::Aggregate::PMQ
     @cached_aggregate ||= begin
       flush
       Marshal.load(synchronize(@rd, RDLOCK) do |rd|
-        IO.pread rd.fileno, rd.stat.size, 0
+        dst = StringIO.new
+        dst.binmode
+        IO.copy_stream(rd, dst, rd.stat.size, 0)
+        dst.string
       end)
     end
   end
@@ -163,7 +166,8 @@ class Raindrops::Aggregate::PMQ
     dump = Marshal.dump @aggregate
     synchronize(@wr, WRLOCK) do |wr|
       wr.truncate 0
-      IO.pwrite wr.fileno, dump, 0
+      wr.rewind
+      wr.write(dump)
     end
   end
 

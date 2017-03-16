@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.test_files = test_files
   s.add_development_dependency('aggregate', '~> 0.2')
   s.add_development_dependency('test-unit', '~> 3.0')
-  s.add_development_dependency('io-extra', [ '~> 1.2', '>= 1.2.3'])
   s.add_development_dependency('posix_mq', '~> 2.0')
   s.add_development_dependency('rack', [ '>= 1.2', '< 3.0' ])
   s.add_development_dependency('olddoc', '~> 1.0')
