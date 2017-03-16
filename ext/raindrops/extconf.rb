@@ -82,6 +82,33 @@ EOF
 	     "#{Shellwords.shellescape(
                 %Q[rb_define_method(cTCP_Info,#{rbmethod},#{cfunc},0)])}"
   end
+  tcp_state_map = {
+    ESTABLISHED: %w(TCP_ESTABLISHED TCPS_ESTABLISHED),
+    SYN_SENT: %w(TCP_SYN_SENT TCPS_SYN_SENT),
+    SYN_RECV: %w(TCP_SYN_RECV TCPS_SYN_RECEIVED),
+    FIN_WAIT1: %w(TCP_FIN_WAIT1 TCPS_FIN_WAIT_1),
+    FIN_WAIT2: %w(TCP_FIN_WAIT2 TCPS_FIN_WAIT_2),
+    TIME_WAIT: %w(TCP_TIME_WAIT TCPS_TIME_WAIT),
+    CLOSE: %w(TCP_CLOSE TCPS_CLOSED),
+    CLOSE_WAIT: %w(TCP_CLOSE_WAIT TCPS_CLOSE_WAIT),
+    LAST_ACK: %w(TCP_LAST_ACK TCPS_LAST_ACK),
+    LISTEN: %w(TCP_LISTEN TCPS_LISTEN),
+    CLOSING: %w(TCP_CLOSING TCPS_CLOSING),
+  }
+  nstate = 0
+  tcp_state_map.each do |state, try|
+    try.each do |os_name|
+      have_const(os_name, headers) or next
+      tcp_state_map[state] = os_name
+      nstate += 1
+    end
+  end
+  if nstate == tcp_state_map.size
+    $defs << '-DRAINDROPS_TCP_STATES_ALL_KNOWN=1'
+    tcp_state_map.each do |state, name|
+      $defs << "-DRAINDROPS_TCP_#{state}=#{name}"
+    end
+  end
 end
 
 have_func("getpagesize", "unistd.h")

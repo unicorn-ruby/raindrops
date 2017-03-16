@@ -73,6 +73,9 @@ class TestTCP_Info < Test::Unit::TestCase
     a = s.accept
     i.get!(a)
     state = i.state
+    if Raindrops.const_defined?(:TCP)
+      assert_equal state, Raindrops::TCP[:ESTABLISHED]
+    end
     c = c.close
     sleep(0.01) # wait for kernel to update state
     i.get!(a)
