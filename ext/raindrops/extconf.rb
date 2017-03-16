@@ -1,4 +1,5 @@
 require 'mkmf'
+require 'shellwords'
 
 dir_config('atomic_ops')
 have_func('mmap', 'sys/mman.h') or abort 'mmap() not found'
@@ -6,9 +7,83 @@ have_func('munmap', 'sys/mman.h') or abort 'munmap() not found'
 
 $CPPFLAGS += " -D_GNU_SOURCE "
 have_func('mremap', 'sys/mman.h')
-have_header('linux/tcp.h')
+headers = %w(sys/types.h netdb.h string.h sys/socket.h netinet/in.h)
+if have_header('linux/tcp.h')
+  headers << 'linux/tcp.h'
+else
+  %w(netinet/tcp.h netinet/tcp_fsm.h).each { |h|
+    have_header(h, headers) and headers << h
+  }
+end
 
 $CPPFLAGS += " -D_BSD_SOURCE "
+
+if have_type("struct tcp_info", headers)
+  %w(
+    tcpi_state
+    tcpi_ca_state
+    tcpi_retransmits
+    tcpi_probes
+    tcpi_backoff
+    tcpi_options
+    tcpi_snd_wscale
+    tcpi_rcv_wscale
+    tcpi_rto
+    tcpi_ato
+    tcpi_snd_mss
+    tcpi_rcv_mss
+    tcpi_unacked
+    tcpi_sacked
+    tcpi_lost
+    tcpi_retrans
+    tcpi_fackets
+    tcpi_last_data_sent
+    tcpi_last_ack_sent
+    tcpi_last_data_recv
+    tcpi_last_ack_recv
+    tcpi_pmtu
+    tcpi_rcv_ssthresh
+    tcpi_rtt
+    tcpi_rttvar
+    tcpi_snd_ssthresh
+    tcpi_snd_cwnd
+    tcpi_advmss
+    tcpi_reordering
+    tcpi_rcv_rtt
+    tcpi_rcv_space
+    tcpi_total_retrans
+    tcpi_snd_wnd
+    tcpi_snd_bwnd
+    tcpi_snd_nxt
+    tcpi_rcv_nxt
+    tcpi_toe_tid
+    tcpi_snd_rexmitpack
+    tcpi_rcv_ooopack
+    tcpi_snd_zerowin
+  ).each do |field|
+    cfunc = "tcp_info_#{field}"
+    if have_struct_member('struct tcp_info', field, headers)
+      func_body = <<EOF
+static VALUE #{cfunc}(VALUE self)
+{
+	struct tcp_info *info = DATA_PTR(self);
+	return UINT2NUM((uint32_t)info->#{field});
+}
+EOF
+      func_body.delete!("\n")
+      $defs << "-DCFUNC_#{cfunc}=#{Shellwords.shellescape(func_body)}"
+    else
+      func_body = "static inline void #{cfunc}(void) {}"
+      $defs << "-DCFUNC_#{cfunc}=#{Shellwords.shellescape(func_body)}"
+      cfunc = 'rb_f_notimplement'.freeze
+    end
+    rbmethod = %Q("#{field.sub(/\Atcpi_/, ''.freeze)}")
+    $defs << "-DDEFINE_METHOD_tcp_info_#{field}=" \
+	     "#{Shellwords.shellescape(
+                %Q[rb_define_method(cTCP_Info,#{rbmethod},#{cfunc},0)])}"
+  end
+end
+
 have_func("getpagesize", "unistd.h")
 have_func('rb_thread_blocking_region')
 have_func('rb_thread_io_blocking_region')
@@ -53,4 +128,5 @@ Users of Debian-based distros may run:
 
   apt-get install libatomic-ops-dev
 SRC
+create_header # generate extconf.h to avoid excessively long command-line
 create_makefile('raindrops_ext')

@@ -1,50 +1,53 @@
-#if defined(__linux__) && defined(HAVE_LINUX_TCP_H)
 #include <ruby.h>
+#include "extconf.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <linux/tcp.h>
-#ifdef TCP_INFO
+#if defined(HAVE_LINUX_TCP_H)
+#  include <linux/tcp.h>
+#else
+#  if defined(HAVE_NETINET_TCP_H)
+#    include <netinet/tcp.h>
+#  endif
+#  if defined(HAVE_NETINET_TCP_FSM_H)
+#    include <netinet/tcp_fsm.h>
+#  endif
+#endif
+
+#ifdef HAVE_TYPE_STRUCT_TCP_INFO
 #include "my_fileno.h"
 
-#define TCPI_ATTR_READER(x) \
-static VALUE tcp_info_##x(VALUE self) \
-{ \
-	struct tcp_info *info = DATA_PTR(self); \
-	return UINT2NUM((uint32_t)info->tcpi_##x); \
-}
-
-TCPI_ATTR_READER(state)
-TCPI_ATTR_READER(ca_state)
-TCPI_ATTR_READER(retransmits)
-TCPI_ATTR_READER(probes)
-TCPI_ATTR_READER(backoff)
-TCPI_ATTR_READER(options)
-TCPI_ATTR_READER(snd_wscale)
-TCPI_ATTR_READER(rcv_wscale)
-TCPI_ATTR_READER(rto)
-TCPI_ATTR_READER(ato)
-TCPI_ATTR_READER(snd_mss)
-TCPI_ATTR_READER(rcv_mss)
-TCPI_ATTR_READER(unacked)
-TCPI_ATTR_READER(sacked)
-TCPI_ATTR_READER(lost)
-TCPI_ATTR_READER(retrans)
-TCPI_ATTR_READER(fackets)
-TCPI_ATTR_READER(last_data_sent)
-TCPI_ATTR_READER(last_ack_sent)
-TCPI_ATTR_READER(last_data_recv)
-TCPI_ATTR_READER(last_ack_recv)
-TCPI_ATTR_READER(pmtu)
-TCPI_ATTR_READER(rcv_ssthresh)
-TCPI_ATTR_READER(rtt)
-TCPI_ATTR_READER(rttvar)
-TCPI_ATTR_READER(snd_ssthresh)
-TCPI_ATTR_READER(snd_cwnd)
-TCPI_ATTR_READER(advmss)
-TCPI_ATTR_READER(reordering)
-TCPI_ATTR_READER(rcv_rtt)
-TCPI_ATTR_READER(rcv_space)
-TCPI_ATTR_READER(total_retrans)
+CFUNC_tcp_info_tcpi_state
+CFUNC_tcp_info_tcpi_ca_state
+CFUNC_tcp_info_tcpi_retransmits
+CFUNC_tcp_info_tcpi_probes
+CFUNC_tcp_info_tcpi_backoff
+CFUNC_tcp_info_tcpi_options
+CFUNC_tcp_info_tcpi_snd_wscale
+CFUNC_tcp_info_tcpi_rcv_wscale
+CFUNC_tcp_info_tcpi_rto
+CFUNC_tcp_info_tcpi_ato
+CFUNC_tcp_info_tcpi_snd_mss
+CFUNC_tcp_info_tcpi_rcv_mss
+CFUNC_tcp_info_tcpi_unacked
+CFUNC_tcp_info_tcpi_sacked
+CFUNC_tcp_info_tcpi_lost
+CFUNC_tcp_info_tcpi_retrans
+CFUNC_tcp_info_tcpi_fackets
+CFUNC_tcp_info_tcpi_last_data_sent
+CFUNC_tcp_info_tcpi_last_ack_sent
+CFUNC_tcp_info_tcpi_last_data_recv
+CFUNC_tcp_info_tcpi_last_ack_recv
+CFUNC_tcp_info_tcpi_pmtu
+CFUNC_tcp_info_tcpi_rcv_ssthresh
+CFUNC_tcp_info_tcpi_rtt
+CFUNC_tcp_info_tcpi_rttvar
+CFUNC_tcp_info_tcpi_snd_ssthresh
+CFUNC_tcp_info_tcpi_snd_cwnd
+CFUNC_tcp_info_tcpi_advmss
+CFUNC_tcp_info_tcpi_reordering
+CFUNC_tcp_info_tcpi_rcv_rtt
+CFUNC_tcp_info_tcpi_rcv_space
+CFUNC_tcp_info_tcpi_total_retrans
 
 static size_t tcpi_memsize(const void *ptr)
 {
@@ -85,7 +88,7 @@ static VALUE init(VALUE self, VALUE io)
 	return self;
 }
 
-void Init_raindrops_linux_tcp_info(void)
+void Init_raindrops_tcp_info(void)
 {
 	VALUE cRaindrops = rb_define_class("Raindrops", rb_cObject);
 	VALUE cTCP_Info;
@@ -156,41 +159,37 @@ void Init_raindrops_linux_tcp_info(void)
 	 */
 	rb_define_method(cTCP_Info, "get!", init, 1);
 
-#define TCPI_DEFINE_METHOD(x) \
-	rb_define_method(cTCP_Info, #x, tcp_info_##x, 0)
-
-	TCPI_DEFINE_METHOD(state);
-	TCPI_DEFINE_METHOD(ca_state);
-	TCPI_DEFINE_METHOD(retransmits);
-	TCPI_DEFINE_METHOD(probes);
-	TCPI_DEFINE_METHOD(backoff);
-	TCPI_DEFINE_METHOD(options);
-	TCPI_DEFINE_METHOD(snd_wscale);
-	TCPI_DEFINE_METHOD(rcv_wscale);
-	TCPI_DEFINE_METHOD(rto);
-	TCPI_DEFINE_METHOD(ato);
-	TCPI_DEFINE_METHOD(snd_mss);
-	TCPI_DEFINE_METHOD(rcv_mss);
-	TCPI_DEFINE_METHOD(unacked);
-	TCPI_DEFINE_METHOD(sacked);
-	TCPI_DEFINE_METHOD(lost);
-	TCPI_DEFINE_METHOD(retrans);
-	TCPI_DEFINE_METHOD(fackets);
-	TCPI_DEFINE_METHOD(last_data_sent);
-	TCPI_DEFINE_METHOD(last_ack_sent);
-	TCPI_DEFINE_METHOD(last_data_recv);
-	TCPI_DEFINE_METHOD(last_ack_recv);
-	TCPI_DEFINE_METHOD(pmtu);
-	TCPI_DEFINE_METHOD(rcv_ssthresh);
-	TCPI_DEFINE_METHOD(rtt);
-	TCPI_DEFINE_METHOD(rttvar);
-	TCPI_DEFINE_METHOD(snd_ssthresh);
-	TCPI_DEFINE_METHOD(snd_cwnd);
-	TCPI_DEFINE_METHOD(advmss);
-	TCPI_DEFINE_METHOD(reordering);
-	TCPI_DEFINE_METHOD(rcv_rtt);
-	TCPI_DEFINE_METHOD(rcv_space);
-	TCPI_DEFINE_METHOD(total_retrans);
+	DEFINE_METHOD_tcp_info_tcpi_state;
+	DEFINE_METHOD_tcp_info_tcpi_ca_state;
+	DEFINE_METHOD_tcp_info_tcpi_retransmits;
+	DEFINE_METHOD_tcp_info_tcpi_probes;
+	DEFINE_METHOD_tcp_info_tcpi_backoff;
+	DEFINE_METHOD_tcp_info_tcpi_options;
+	DEFINE_METHOD_tcp_info_tcpi_snd_wscale;
+	DEFINE_METHOD_tcp_info_tcpi_rcv_wscale;
+	DEFINE_METHOD_tcp_info_tcpi_rto;
+	DEFINE_METHOD_tcp_info_tcpi_ato;
+	DEFINE_METHOD_tcp_info_tcpi_snd_mss;
+	DEFINE_METHOD_tcp_info_tcpi_rcv_mss;
+	DEFINE_METHOD_tcp_info_tcpi_unacked;
+	DEFINE_METHOD_tcp_info_tcpi_sacked;
+	DEFINE_METHOD_tcp_info_tcpi_lost;
+	DEFINE_METHOD_tcp_info_tcpi_retrans;
+	DEFINE_METHOD_tcp_info_tcpi_fackets;
+	DEFINE_METHOD_tcp_info_tcpi_last_data_sent;
+	DEFINE_METHOD_tcp_info_tcpi_last_ack_sent;
+	DEFINE_METHOD_tcp_info_tcpi_last_data_recv;
+	DEFINE_METHOD_tcp_info_tcpi_last_ack_recv;
+	DEFINE_METHOD_tcp_info_tcpi_pmtu;
+	DEFINE_METHOD_tcp_info_tcpi_rcv_ssthresh;
+	DEFINE_METHOD_tcp_info_tcpi_rtt;
+	DEFINE_METHOD_tcp_info_tcpi_rttvar;
+	DEFINE_METHOD_tcp_info_tcpi_snd_ssthresh;
+	DEFINE_METHOD_tcp_info_tcpi_snd_cwnd;
+	DEFINE_METHOD_tcp_info_tcpi_advmss;
+	DEFINE_METHOD_tcp_info_tcpi_reordering;
+	DEFINE_METHOD_tcp_info_tcpi_rcv_rtt;
+	DEFINE_METHOD_tcp_info_tcpi_rcv_space;
+	DEFINE_METHOD_tcp_info_tcpi_total_retrans;
 }
-#endif /* TCP_INFO */
-#endif /* defined(__linux__) && defined(HAVE_LINUX_TCP_H) */
+#endif /* HAVE_STRUCT_TCP_INFO */

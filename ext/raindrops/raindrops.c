@@ -336,7 +336,9 @@ static VALUE aref(VALUE self, VALUE index)
 
 #ifdef __linux__
 void Init_raindrops_linux_inet_diag(void);
-void Init_raindrops_linux_tcp_info(void);
+#endif
+#ifdef HAVE_TYPE_STRUCT_TCP_INFO
+void Init_raindrops_tcp_info(void);
 #endif
 
 #ifndef _SC_NPROCESSORS_CONF
@@ -441,6 +443,8 @@ void Init_raindrops_ext(void)
 
 #ifdef __linux__
 	Init_raindrops_linux_inet_diag();
-	Init_raindrops_linux_tcp_info();
+#endif
+#ifdef HAVE_TYPE_STRUCT_TCP_INFO
+	Init_raindrops_tcp_info();
 #endif
 }
