@@ -39,9 +39,9 @@ class Raindrops::Aggregate::PMQ
   # :stopdoc:
   # These constants are for Linux.  This is designed for aggregating
   # TCP_INFO.
-  RDLOCK = [ Fcntl::F_RDLCK ].pack("s @256")
-  WRLOCK = [ Fcntl::F_WRLCK ].pack("s @256")
-  UNLOCK = [ Fcntl::F_UNLCK ].pack("s @256")
+  RDLOCK = [ Fcntl::F_RDLCK ].pack("s @256".freeze).freeze
+  WRLOCK = [ Fcntl::F_WRLCK ].pack("s @256".freeze).freeze
+  UNLOCK = [ Fcntl::F_UNLCK ].pack("s @256".freeze).freeze
   # :startdoc:
 
   # returns the number of dropped messages sent to a POSIX message
@@ -185,10 +185,12 @@ class Raindrops::Aggregate::PMQ
   def synchronize io, type # :nodoc:
     @mutex.synchronize do
       begin
+        type = type.dup
         lock! io, type
         yield io
       ensure
-        lock! io, UNLOCK
+        lock! io, type.replace(UNLOCK)
+        type.clear
       end
     end
   end
