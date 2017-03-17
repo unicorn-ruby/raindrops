@@ -233,67 +233,56 @@ static void bug_warn_nogvl(const char *fmt, ...)
 
 static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 {
-	char *key, *port, *old_key;
+	char *host, *key, *port, *old_key;
 	size_t alloca_len;
 	struct listen_stats *stats;
-	socklen_t keylen;
+	socklen_t hostlen;
 	socklen_t portlen = (socklen_t)sizeof("65535");
-	union any_addr sa;
-	socklen_t len = sizeof(struct sockaddr_storage);
-	int rc;
-	int flags = NI_NUMERICHOST | NI_NUMERICSERV;
+	int n;
+	const void *src = r->id.idiag_src;
 
-	switch ((sa.ss.ss_family = r->idiag_family)) {
+	switch (r->idiag_family) {
 	case AF_INET: {
-		sa.in.sin_port = r->id.idiag_sport;
-		sa.in.sin_addr.s_addr = r->id.idiag_src[0];
-		keylen = INET_ADDRSTRLEN;
-		alloca_len = keylen + 1 + portlen;
-		key = alloca(alloca_len);
-		key[keylen] = 0; /* will be ':' later */
-		port = key + keylen + 1;
-		rc = getnameinfo(&sa.sa, len,
-				 key, keylen, port, portlen, flags);
+		hostlen = INET_ADDRSTRLEN;
+		alloca_len = hostlen + portlen;
+		host = key = alloca(alloca_len);
 		break;
 		}
 	case AF_INET6: {
-		sa.in6.sin6_port = r->id.idiag_sport;
-		memcpy(&sa.in6.sin6_addr, &r->id.idiag_src, sizeof(__be32[4]));
-		keylen = INET6_ADDRSTRLEN;
-		          /* [            ] */
-		alloca_len = 1 + keylen + 1 + 1 + portlen;
+		hostlen = INET6_ADDRSTRLEN;
+		alloca_len = 1 + hostlen + 1 + portlen;
 		key = alloca(alloca_len);
-		*key = '[';
-		key[1 + keylen + 1] = 0; /* will be ':' later */
-		port = 1 + key + keylen + 1 + 1;
-		rc = getnameinfo(&sa.sa, len,
-				 key + 1, keylen, port, portlen, flags);
+		host = key + 1;
 		break;
 		}
 	default:
 		assert(0 && "unsupported address family, could that be IPv7?!");
 	}
-	if (rc != 0) {
-		bug_warn_nogvl("BUG: getnameinfo: %s\n", gai_strerror(rc));
-		*key = 0;
+	if (!inet_ntop(r->idiag_family, src, host, hostlen)) {
+		bug_warn_nogvl("BUG: inet_ntop: %s\n", strerror(errno));
+		*key = '\0';
+		*host = '\0';
 	}
-
-	keylen = (socklen_t)strlen(key);
-	portlen = (socklen_t)strlen(port);
-
-	switch (sa.ss.ss_family) {
+	hostlen = (socklen_t)strlen(host);
+	switch (r->idiag_family) {
 	case AF_INET:
-		key[keylen] = ':';
-		memmove(key + keylen + 1, port, portlen + 1);
+		host[hostlen] = ':';
+		port = host + hostlen + 1;
 		break;
 	case AF_INET6:
-		key[keylen] = ']';
-		key[keylen + 1] = ':';
-		memmove(key + keylen + 2, port, portlen + 1);
-		keylen++;
+		key[0] = '[';
+		host[hostlen] = ']';
+		host[hostlen + 1] = ':';
+		port = host + hostlen + 2;
 		break;
 	default:
 		assert(0 && "unsupported address family, could that be IPv7?!");
+	}
+
+	n = snprintf(port, portlen, "%u", ntohs(r->id.idiag_sport));
+	if (n <= 0) {
+		bug_warn_nogvl("BUG: snprintf port: %d\n", n);
+		*key = '\0';
 	}
 
 	if (st_lookup(table, (st_data_t)key, (st_data_t *)&stats))
@@ -302,11 +291,12 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 	old_key = key;
 
 	if (r->idiag_state == TCP_ESTABLISHED) {
-		int n = snprintf(key, alloca_len, "%s:%u",
-				 addr_any(sa.ss.ss_family),
+		n = snprintf(key, alloca_len, "%s:%u",
+				 addr_any(r->idiag_family),
 				 ntohs(r->id.idiag_sport));
 		if (n <= 0) {
 			bug_warn_nogvl("BUG: snprintf: %d\n", n);
+			*key = '\0';
 		}
 		if (st_lookup(table, (st_data_t)key, (st_data_t *)&stats))
 			return stats;
@@ -319,8 +309,9 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 			memcpy(key, old_key, n + 1);
 		}
 	} else {
-		key = xmalloc(keylen + 1 + portlen + 1);
-		memcpy(key, old_key, keylen + 1 + portlen + 1);
+		size_t old_len = strlen(old_key) + 1;
+		key = xmalloc(old_len);
+		memcpy(key, old_key, old_len);
 	}
 	stats = xcalloc(1, sizeof(struct listen_stats));
 	st_insert(table, (st_data_t)key, (st_data_t)stats);
