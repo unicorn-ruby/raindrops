@@ -117,7 +117,9 @@ retry:
 	r->drops = mmap(NULL, tmp,
 	                PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
 	if (r->drops == MAP_FAILED) {
-		if ((errno == EAGAIN || errno == ENOMEM) && tries-- > 0) {
+		int err = errno;
+
+		if ((err == EAGAIN || err == ENOMEM) && tries-- > 0) {
 			rb_gc();
 			goto retry;
 		}
@@ -153,7 +155,9 @@ static void resize(struct raindrops *r, size_t new_rd_size)
 
 	rv = mremap(old_address, old_size, new_size, MREMAP_MAYMOVE);
 	if (rv == MAP_FAILED) {
-		if (errno == EAGAIN || errno == ENOMEM) {
+		int err = errno;
+
+		if (err == EAGAIN || err == ENOMEM) {
 			rb_gc();
 			rv = mremap(old_address, old_size, new_size, 0);
 		}
