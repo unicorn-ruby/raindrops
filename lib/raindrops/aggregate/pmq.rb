@@ -6,7 +6,7 @@ require "fcntl"
 require "thread"
 require "stringio"
 
-# \Aggregate + POSIX message queues support for Ruby 1.9 and \Linux
+# \Aggregate + POSIX message queues support for Ruby 1.9+ and \Linux
 #
 # This class is duck-type compatible with \Aggregate and allows us to
 # aggregate and share statistics from multiple processes/threads aided
@@ -14,8 +14,8 @@ require "stringio"
 # Raindrops::LastDataRecv Rack application, but can be used independently
 # on compatible Runtimes.
 #
-# Unlike the core of raindrops, this is only supported on Ruby 1.9 and
-# Linux 2.6.  Using this class requires the following additional RubyGems
+# Unlike the core of raindrops, this is only supported on Ruby 1.9+ and
+# Linux 2.6+.  Using this class requires the following additional RubyGems
 # or libraries:
 #
 # * aggregate (tested with 0.2.2)
