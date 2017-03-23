@@ -101,6 +101,10 @@ void Init_raindrops_tcp_info(void)
 	 * are defined corresponding to the "tcpi_" fields in the
 	 * tcp_info struct.
 	 *
+	 * As of raindrops 0.18.0+, this is supported on FreeBSD and OpenBSD
+	 * systems as well as Linux, although not all fields exist or
+	 * match the documentation, below.
+	 *
 	 * In particular, the +last_data_recv+ field is useful for measuring
 	 * the amount of time a client spent in the listen queue before
 	 * +accept()+, but only if +TCP_DEFER_ACCEPT+ is used with the
@@ -193,6 +197,32 @@ void Init_raindrops_tcp_info(void)
 	DEFINE_METHOD_tcp_info_tcpi_total_retrans;
 
 #ifdef RAINDROPS_TCP_STATES_ALL_KNOWN
+
+	/*
+	 * Document-const: Raindrops::TCP
+         *
+         * This is a frozen hash storing the numeric values
+         * maps platform-independent symbol keys to
+         * platform-dependent numeric values. These states
+         * are all valid values for the Raindrops::TCP_Info#state field.
+         *
+         * The platform-independent names of the keys in this hash are:
+         *
+         *  - :ESTABLISHED
+         *  - :SYN_SENT
+         *  - :SYN_RECV
+         *  - :FIN_WAIT1
+         *  - :FIN_WAIT2
+         *  - :TIME_WAIT
+         *  - :CLOSE
+         *  - :CLOSE_WAIT
+         *  - :LAST_ACK
+         *  - :LISTEN
+         *  - :CLOSING
+         *
+         * This is only supported on platforms where TCP_Info is supported,
+         * currently FreeBSD, OpenBSD, and Linux-based systems.
+         */
 	{
 #define TCPSET(n,v) rb_hash_aset(tcp, ID2SYM(rb_intern(#n)), INT2NUM(v))
 		VALUE tcp = rb_hash_new();
