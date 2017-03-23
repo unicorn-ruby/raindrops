@@ -5,7 +5,7 @@ test_files = manifest.grep(%r{\Atest/test_.*\.rb\z})
 
 Gem::Specification.new do |s|
   s.name = %q{raindrops}
-  s.version = (ENV["VERSION"] ||= '0.17.0').dup
+  s.version = (ENV["VERSION"] ||= '0.18.0').dup
   s.authors = ["raindrops hackers"]
   s.description = File.read('README').split("\n\n")[1]
   s.email = %q{raindrops-public@bogomips.org}
