@@ -1,30 +1,26 @@
 # -*- encoding: binary -*-
-ENV["VERSION"] or abort "VERSION= must be specified"
-manifest = File.readlines('.manifest').map! { |x| x.chomp! }
+manifest = File.exist?('.manifest') ?
+  IO.readlines('.manifest').map!(&:chomp!) : `git ls-files`.split("\n")
 test_files = manifest.grep(%r{\Atest/test_.*\.rb\z})
-require 'olddoc'
-extend Olddoc::Gemspec
-name, summary, title = readme_metadata
 
 Gem::Specification.new do |s|
   s.name = %q{raindrops}
-  s.version = ENV["VERSION"].dup
-
+  s.version = (ENV["VERSION"] ||= '0.17.0').dup
   s.authors = ["raindrops hackers"]
-  s.description = readme_description
+  s.description = File.read('README').split("\n\n")[1]
   s.email = %q{raindrops-public@bogomips.org}
   s.extensions = %w(ext/raindrops/extconf.rb)
-  s.extra_rdoc_files = extra_rdoc_files(manifest)
+  s.extra_rdoc_files = IO.readlines('.document').map!(&:chomp!).keep_if do |f|
+    File.exist?(f)
+  end
   s.files = manifest
-  s.homepage = Olddoc.config['rdoc_url']
-  s.summary = summary
+  s.homepage = 'https://bogomips.org/raindrops/'
+  s.summary = 'real-time stats for preforking Rack servers'
   s.required_ruby_version = '>= 1.9.3'
   s.test_files = test_files
   s.add_development_dependency('aggregate', '~> 0.2')
   s.add_development_dependency('test-unit', '~> 3.0')
   s.add_development_dependency('posix_mq', '~> 2.0')
   s.add_development_dependency('rack', [ '>= 1.2', '< 3.0' ])
-  s.add_development_dependency('olddoc', '~> 1.0')
-
   s.licenses = %w(LGPL-2.1+)
 end
