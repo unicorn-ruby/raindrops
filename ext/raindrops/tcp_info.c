@@ -1,5 +1,4 @@
 #include <ruby.h>
-#include "extconf.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #if defined(HAVE_LINUX_TCP_H)
