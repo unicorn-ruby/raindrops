@@ -112,6 +112,7 @@ EOF
 end
 
 have_func("getpagesize", "unistd.h")
+have_func('rb_thread_call_without_gvl')
 have_func('rb_thread_blocking_region')
 have_func('rb_thread_io_blocking_region')
 

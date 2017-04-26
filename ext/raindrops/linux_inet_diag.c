@@ -1,46 +1,24 @@
 #include <ruby.h>
 #include <stdarg.h>
-#ifdef HAVE_RUBY_ST_H
-#  include <ruby/st.h>
-#else
-#  include <st.h>
-#endif
+#include <ruby/st.h>
 #include "my_fileno.h"
 #ifdef __linux__
 
-/* Ruby 1.8.6+ macros (for compatibility with Ruby 1.9) */
-#ifndef RSTRING_LEN
-#  define RSTRING_LEN(s) (RSTRING(s)->len)
-#endif
-
-/* partial emulation of the 1.9 rb_thread_blocking_region under 1.8 */
-#if !defined(HAVE_RB_THREAD_BLOCKING_REGION) && \
-    !defined(HAVE_RB_THREAD_IO_BLOCKING_REGION)
-#  include <rubysig.h>
-#  define RUBY_UBF_IO ((rb_unblock_function_t *)-1)
-typedef void rb_unblock_function_t(void *);
-typedef VALUE rb_blocking_function_t(void *);
-static VALUE
-rb_thread_blocking_region(
-	rb_blocking_function_t *func, void *data1,
-	rb_unblock_function_t *ubf, void *data2)
-{
-	VALUE rv;
-
-	TRAP_BEG;
-	rv = func(data1);
-	TRAP_END;
-
-	return rv;
-}
-#endif /* ! HAVE_RB_THREAD_BLOCKING_REGION */
-
 #ifdef HAVE_RB_THREAD_IO_BLOCKING_REGION
+/* Ruby 1.9.3 and 2.0.0 */
 VALUE rb_thread_io_blocking_region(rb_blocking_function_t *, void *, int);
+#  define rd_fd_region(fn,data,fd) \
+	rb_thread_io_blocking_region((fn),(data),(fd))
+#elif defined(HAVE_RB_THREAD_CALL_WITHOUT_GVL) && \
+	defined(HAVE_RUBY_THREAD_H) && HAVE_RUBY_THREAD_H
+/* in case Ruby 2.0+ ever drops rb_thread_io_blocking_region: */
+#  include <ruby/thread.h>
+#  define COMPAT_FN (void *(*)(void *))
+#  define rd_fd_region(fn,data,fd) \
+	rb_thread_call_without_gvl(COMPAT_FN(fn),(data),RUBY_UBF_IO,NULL)
 #else
-#  define rb_thread_io_blocking_region(fn,data,fd) \
-      rb_thread_blocking_region((fn),(data),RUBY_UBF_IO,0)
-#endif /* HAVE_RB_THREAD_IO_BLOCKING_REGION */
+#  error Ruby <= 1.8 not supported
+#endif
 
 #include <assert.h>
 #include <errno.h>
@@ -608,7 +586,7 @@ static VALUE tcp_stats(struct nogvl_args *args, VALUE addr)
 	gen_bytecode(&args->iov[2], &query_addr);
 
 	memset(&args->stats, 0, sizeof(struct listen_stats));
-	nl_errcheck(rb_thread_io_blocking_region(diag, args, args->fd));
+	nl_errcheck(rd_fd_region(diag, args, args->fd));
 
 	return rb_listen_stats(&args->stats);
 }
@@ -685,7 +663,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 		         "addr must be an array of strings, a string, or nil");
 	}
 
-	nl_errcheck(rb_thread_io_blocking_region(diag, &args, args.fd));
+	nl_errcheck(rd_fd_region(diag, &args, args.fd));
 
 	st_foreach(args.table, NIL_P(addrs) ? st_to_hash : st_AND_hash, rv);
 	st_free_table(args.table);
