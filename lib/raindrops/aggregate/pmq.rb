@@ -142,8 +142,8 @@ class Raindrops::Aggregate::PMQ
       warn "Unhandled exception in #{__FILE__}:#{__LINE__}: #{e}"
       break
     end while true
-    ensure
-      flush_master
+  ensure
+    flush_master
   end
 
   # Loads the last shared \Aggregate from the master thread/process
@@ -175,14 +175,14 @@ class Raindrops::Aggregate::PMQ
   # worker thread or process
   def stop_master_loop
     sleep 0.1 until mq_send(false)
-    rescue Errno::EINTR
-      retry
+  rescue Errno::EINTR
+    retry
   end
 
   def lock! io, type # :nodoc:
     io.fcntl Fcntl::F_SETLKW, type
-    rescue Errno::EINTR
-      retry
+  rescue Errno::EINTR
+    retry
   end
 
   # we use both a mutex for thread-safety and fcntl lock for process-safety

@@ -37,7 +37,7 @@ class TestLinuxAllTcpListenStatsLeak < Test::Unit::TestCase
     end
     cur_kb = rss_kb
     p [ :cur_kb, cur_kb ]
-    ensure
-      s.close
+  ensure
+    s.close
   end
 end if ENV["STRESS"].to_i != 0

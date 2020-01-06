@@ -60,10 +60,10 @@ class TestTCP_Info < Test::Unit::TestCase
     a = s.accept
     i = Raindrops::TCP_Info.new(a)
     assert i.last_data_recv >= delay_ms, "#{i.last_data_recv} < #{delay_ms}"
-    ensure
-      c.close if c
-      a.close if a
-      s.close
+  ensure
+    c.close if c
+    a.close if a
+    s.close
   end
 
   def test_tcp_server_state_closed

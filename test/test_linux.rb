@@ -76,6 +76,7 @@ class TestLinux < Test::Unit::TestCase
 
     assert_equal 0, stats[tmp.path].active
     assert_equal 0, stats[tmp.path].queued
+    us.close
   end
 
   def test_unix_resolves_symlinks
@@ -151,8 +152,8 @@ class TestLinux < Test::Unit::TestCase
     assert_equal 1, stats.size
     assert_equal 0, stats[addr].queued
     assert_equal 1, stats[addr].active
-    ensure
-      nlsock.close
+  ensure
+    nlsock.close
   end
 
   def test_tcp_multi

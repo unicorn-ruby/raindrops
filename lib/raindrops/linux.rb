@@ -14,8 +14,7 @@ module Raindrops::Linux
   # The standard proc path for active UNIX domain sockets, feel free to call
   # String#replace on this if your /proc is mounted in a non-standard location
   # for whatever reason
-  PROC_NET_UNIX_ARGS = %w(/proc/net/unix)
-  defined?(::Encoding) and PROC_NET_UNIX_ARGS.push({ :encoding => "binary" })
+  PROC_NET_UNIX_ARGS = [ '/proc/net/unix', { encoding: "binary" }]
 
   # Get ListenStats from an array of +paths+
   #
@@ -42,11 +41,11 @@ module Raindrops::Linux
     else
       paths = paths.map do |path|
         path = path.dup
-        path.force_encoding(Encoding::BINARY) if defined?(Encoding)
+        path.force_encoding(Encoding::BINARY)
         if File.symlink?(path)
           link = path
           path = File.readlink(link)
-          path.force_encoding(Encoding::BINARY) if defined?(Encoding)
+          path.force_encoding(Encoding::BINARY)
           rv[link] = rv[path] # vivify ListenerStats
         else
           rv[path] # vivify ListenerStats
@@ -57,7 +56,7 @@ module Raindrops::Linux
     paths = /^\w+: \d+ \d+ (\d+) \d+ (\d+)\s+\d+ (#{paths.join('|')})$/n
 
     # no point in pread since we can't stat for size on this file
-    File.read(*PROC_NET_UNIX_ARGS).scan(paths) do |s|
+    File.read(PROC_NET_UNIX_ARGS[0], encoding: 'binary').scan(paths) do |s|
       path = s[-1]
       case s[0]
       when "00000000" # client sockets

@@ -134,7 +134,7 @@ class TestRaindrops < Test::Unit::TestCase
     assert_equal 0, rd[rd.capa - 1]
     assert_equal 1, rd.incr(rd.capa - 1)
     assert_raises(ArgumentError) { rd[rd.capa] }
-    rescue RangeError
+  rescue RangeError
   end # if RUBY_PLATFORM =~ /linux/
 
   def test_evaporate

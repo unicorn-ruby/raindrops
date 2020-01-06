@@ -15,7 +15,6 @@ end
 usage = "Usage: #$0 [-d DELAY] [-t QUEUED_THRESHOLD] ADDR..."
 ARGV.size > 0 or abort usage
 delay = false
-all = false
 queued_thresh = -1
 # "normal" exits when driven on the command-line
 trap(:INT) { exit 130 }
@@ -25,7 +24,7 @@ OptionParser.new('', 24, '  ') do |opts|
   opts.banner = usage
   opts.on('-d', '--delay=DELAY', Float) { |n| delay = n }
   opts.on('-t', '--queued-threshold=INT', Integer) { |n| queued_thresh = n }
-  opts.on('-a', '--all') { all = true }
+  opts.on('-a', '--all') { } # noop
   opts.parse! ARGV
 end
 
