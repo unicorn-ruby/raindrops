@@ -1,4 +1,4 @@
 all::
-RSYNC_DEST := bogomips.org:/srv/bogomips/raindrops
+RSYNC_DEST := yhbt.net:/srv/yhbt/raindrops
 rfpackage := raindrops
 include pkg.mk

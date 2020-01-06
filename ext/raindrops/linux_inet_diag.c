@@ -205,7 +205,7 @@ static void bug_warn_nogvl(const char *fmt, ...)
 	va_end(ap);
 
 	fprintf(stderr, "Please report how you produced this at "\
-	                "raindrops-public@bogomips.org\n");
+	                "raindrops-public@yhbt.net\n");
 	fflush(stderr);
 }
 

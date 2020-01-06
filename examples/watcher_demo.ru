@@ -1,5 +1,5 @@
 # This is a snippet of the config that powers
-# https://raindrops-demo.bogomips.org/
+# https://yhbt.net/raindrops-demo/
 # This may be used with the packaged zbatery.conf.rb
 #
 # zbatery -c zbatery.conf.ru watcher_demo.ru -E none

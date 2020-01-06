@@ -59,20 +59,20 @@ If you use RubyGems:
 See Raindrops::Middleware and Raindrops::LastDataRecv documentation for
 use Rack servers.  The entire library is fully-documented and we are
 responsive on the publically archived mailing list
-(mailto:raindrops-public@bogomips.org) if
+(mailto:raindrops-public@yhbt.net) if
 you have any questions or comments.
 
 == Development
 
 You can get the latest source via git from the following locations:
 
-  git://bogomips.org/raindrops.git
+  git://yhbt.net/raindrops.git
   git://repo.or.cz/raindrops.git (mirror)
 
 You may browse the code from the web and download the latest snapshot
 tarballs here:
 
-* https://bogomips.org/raindrops.git
+* https://yhbt.net/raindrops.git
 * http://repo.or.cz/w/raindrops.git (gitweb)
 
 Inline patches (from "git format-patch") to the mailing list are
@@ -90,11 +90,12 @@ raindrops is licensed under the LGPL-2.1+
 
 All feedback (bug reports, user/development discussion, patches, pull
 requests) go to the publically archived mailing list:
-mailto:raindrops-public@bogomips.org
+mailto:raindrops-public@yhbt.net
 
 Mailing list archives are available over HTTPS and NNTP:
 
-* https://bogomips.org/raindrops-public/
+* https://yhbt.net/raindrops-public/
+* http://ou63pmih66umazou.onion/raindrops-public/
 * nntp://news.public-inbox.org/inbox.comp.lang.ruby.raindrops
 
 Since archives are public, scrub sensitive information and
