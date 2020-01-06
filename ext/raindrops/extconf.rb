@@ -143,7 +143,7 @@ SRC
       $defs.push(format("-DHAVE_GCC_ATOMIC_BUILTINS"))
       true
     else
-      prev_cflags = $CFLAGS
+      $CFLAGS = prev_cflags
       false
     end
   end
