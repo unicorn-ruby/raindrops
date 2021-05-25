@@ -696,6 +696,7 @@ void Init_raindrops_linux_inet_diag(void)
 	rb_define_singleton_method(cIDSock, "new", ids_s_new, 0);
 
 	cListenStats = rb_const_get(cRaindrops, rb_intern("ListenStats"));
+	rb_gc_register_mark_object(cListenStats); /* pin */
 
 	rb_define_module_function(mLinux, "tcp_listener_stats",
 	                          tcp_listener_stats, -1);
