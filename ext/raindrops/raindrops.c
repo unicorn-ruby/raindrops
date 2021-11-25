@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stddef.h>
+#include <string.h>
 #include "raindrops_atomic.h"
 
 #ifndef SIZET2NUM
@@ -34,8 +35,16 @@ struct raindrops {
 	size_t size;
 	size_t capa;
 	pid_t pid;
+	VALUE io;
 	struct raindrop *drops;
 };
+
+/* called by GC */
+static void rd_mark(void *ptr)
+{
+	struct raindrops *r = ptr;
+	rb_gc_mark(r->io);
+}
 
 /* called by GC */
 static void rd_free(void *ptr)
@@ -60,7 +69,7 @@ static size_t rd_memsize(const void *ptr)
 
 static const rb_data_type_t rd_type = {
 	"raindrops",
-	{ NULL, rd_free, rd_memsize, /* reserved */ },
+	{ rd_mark, rd_free, rd_memsize, /* reserved */ },
 	/* parent, data, [ flags ] */
 };
 
@@ -87,16 +96,10 @@ static struct raindrops *get(VALUE self)
 }
 
 /*
- * call-seq:
- *	Raindrops.new(size)	-> raindrops object
- *
- * Initializes a Raindrops object to hold +size+ counters.  +size+ is
- * only a hint and the actual number of counters the object has is
- * dependent on the CPU model, number of cores, and page size of
- * the machine.  The actual size of the object will always be equal
- * or greater than the specified +size+.
+ * This is the _actual_ implementation of #initialize - the Ruby wrapper
+ * handles keyword-argument handling then calls this method.
  */
-static VALUE init(VALUE self, VALUE size)
+static VALUE init_cimpl(VALUE self, VALUE size, VALUE io, VALUE zero)
 {
 	struct raindrops *r = DATA_PTR(self);
 	int tries = 1;
@@ -113,9 +116,19 @@ static VALUE init(VALUE self, VALUE size)
 	r->capa = tmp / raindrop_size;
 	assert(PAGE_ALIGN(raindrop_size * r->capa) == tmp && "not aligned");
 
+	r->io = io;
+
 retry:
-	r->drops = mmap(NULL, tmp,
-	                PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED, -1, 0);
+	if (RTEST(r->io)) {
+		int fd = NUM2INT(rb_funcall(r->io, rb_intern("fileno"), 0));
+		rb_funcall(r->io, rb_intern("truncate"), 1, SIZET2NUM(tmp));
+		r->drops = mmap(NULL, tmp,
+				PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	} else {
+		r->drops = mmap(NULL, tmp,
+				PROT_READ|PROT_WRITE, MAP_ANON|MAP_SHARED,
+				-1, 0);
+	}
 	if (r->drops == MAP_FAILED) {
 		int err = errno;
 
@@ -126,6 +139,9 @@ retry:
 		rb_sys_fail("mmap");
 	}
 	r->pid = getpid();
+
+	if (RTEST(zero))
+		memset(r->drops, 0, tmp);
 
 	return self;
 }
@@ -217,14 +233,16 @@ static VALUE capa(VALUE self)
  * call-seq:
  *	rd.dup		-> rd_copy
  *
- * Duplicates and snapshots the current state of a Raindrops object.
+ * Duplicates and snapshots the current state of a Raindrops object. Even
+ * if the given Raindrops object is backed by a file, the copy will be backed
+ * by independent, anonymously mapped memory.
  */
 static VALUE init_copy(VALUE dest, VALUE source)
 {
 	struct raindrops *dst = DATA_PTR(dest);
 	struct raindrops *src = get(source);
 
-	init(dest, SIZET2NUM(src->size));
+	init_cimpl(dest, SIZET2NUM(src->size), Qnil, Qfalse);
 	memcpy(dst->drops, src->drops, raindrop_size * src->size);
 
 	return dest;
@@ -375,6 +393,20 @@ static VALUE evaporate_bang(VALUE self)
 	return Qnil;
 }
 
+/*
+ * call-seq:
+ * 	to_io	-> IO
+ *
+ * Returns the IO object backing the memory for this raindrop, if
+ * one was specified when constructing this Raindrop. If this
+ * Raindrop is backed by anonymous memory, this method returns nil.
+ */
+static VALUE to_io(VALUE self)
+{
+	struct raindrops *r = get(self);
+	return r->io;
+}
+
 void Init_raindrops_ext(void)
 {
 	VALUE cRaindrops = rb_define_class("Raindrops", rb_cObject);
@@ -433,7 +465,7 @@ void Init_raindrops_ext(void)
 
 	rb_define_alloc_func(cRaindrops, alloc);
 
-	rb_define_method(cRaindrops, "initialize", init, 1);
+	rb_define_private_method(cRaindrops, "initialize_cimpl", init_cimpl, 3);
 	rb_define_method(cRaindrops, "incr", incr, -1);
 	rb_define_method(cRaindrops, "decr", decr, -1);
 	rb_define_method(cRaindrops, "to_ary", to_ary, 0);
@@ -444,6 +476,7 @@ void Init_raindrops_ext(void)
 	rb_define_method(cRaindrops, "capa", capa, 0);
 	rb_define_method(cRaindrops, "initialize_copy", init_copy, 1);
 	rb_define_method(cRaindrops, "evaporate!", evaporate_bang, 0);
+	rb_define_method(cRaindrops, "to_io", to_io, 0);
 
 #ifdef __linux__
 	Init_raindrops_linux_inet_diag();

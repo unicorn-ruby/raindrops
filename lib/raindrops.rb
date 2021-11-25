@@ -36,6 +36,30 @@ class Raindrops
     def total
       active + queued
     end
+  end unless defined? ListenStats
+
+  # call-seq:
+  #	Raindrops.new(size, io: nil)	-> raindrops object
+  #
+  # Initializes a Raindrops object to hold +size+ counters.  +size+ is
+  # only a hint and the actual number of counters the object has is
+  # dependent on the CPU model, number of cores, and page size of
+  # the machine.  The actual size of the object will always be equal
+  # or greater than the specified +size+.
+  # If +io+ is provided, then the Raindrops memory will be backed by
+  # the specified file; otherwise, it will allocate anonymous memory.
+  # The IO object must respond to +truncate+, as this is used to set
+  # the size of the file.
+  # If +zero+ is provided, then the memory region is zeroed prior to
+  # returning. This is only meaningful if +io+ is also provided; in
+  # that case it controls whether any existing counter values in +io+
+  # are retained (false) or whether it is entirely zeroed (true).
+  def initialize(size, io: nil, zero: false)
+    # This ruby wrapper exists to handle the keyword-argument handling,
+    # which is otherwise kind of awkward in C. We delegate the keyword
+    # arguments to the _actual_ initialize implementation as positional
+    # args.
+    initialize_cimpl(size, io, zero)
   end
 
   autoload :Linux, 'raindrops/linux'

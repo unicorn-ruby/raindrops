@@ -1,6 +1,7 @@
 # -*- encoding: binary -*-
 require 'test/unit'
 require 'raindrops'
+require 'tempfile'
 
 class TestRaindrops < Test::Unit::TestCase
 
@@ -161,5 +162,46 @@ class TestRaindrops < Test::Unit::TestCase
     _, status = Process.waitpid2(pid)
     assert status.success?
     assert_equal [ 1, 2 ], tmp.to_ary
+  end
+
+  def test_io_backed
+    file = Tempfile.new('test_io_backed')
+    rd = Raindrops.new(4, io: file, zero: true)
+    rd[0] = 123
+    rd[1] = 456
+
+    assert_equal 123, rd[0]
+    assert_equal 456, rd[1]
+
+    rd.evaporate!
+
+    file.rewind
+    data = file.read
+    assert_equal 123, data.unpack('L!')[0]
+    assert_equal 456, data[Raindrops::SIZE..data.size].unpack('L!')[0]
+  end
+
+  def test_io_backed_reuse
+    file = Tempfile.new('test_io_backed')
+    rd = Raindrops.new(4, io: file, zero: true)
+    rd[0] = 123
+    rd[1] = 456
+    rd.evaporate!
+
+    rd = Raindrops.new(4, io: file, zero: false)
+    assert_equal 123, rd[0]
+    assert_equal 456, rd[1]
+  end
+
+  def test_iobacked_noreuse
+    file = Tempfile.new('test_io_backed')
+    rd = Raindrops.new(4, io: file, zero: true)
+    rd[0] = 123
+    rd[1] = 456
+    rd.evaporate!
+
+    rd = Raindrops.new(4, io: file, zero: true)
+    assert_equal 0, rd[0]
+    assert_equal 0, rd[1]
   end
 end
