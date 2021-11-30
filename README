@@ -58,24 +58,20 @@ If you use RubyGems:
 
 See Raindrops::Middleware and Raindrops::LastDataRecv documentation for
 use Rack servers.  The entire library is fully-documented and we are
-responsive on the publically archived mailing list
-(mailto:raindrops-public@yhbt.net) if
-you have any questions or comments.
+responsive on the publicly archived mailbox
+(mailto:raindrops-public@yhbt.net) if you have any questions or comments.
 
 == Development
 
 You can get the latest source via git from the following locations:
 
-  git://yhbt.net/raindrops.git
-  git://repo.or.cz/raindrops.git (mirror)
+  https://yhbt.net/raindrops.git
+  http://7fh6tueqddpjyxjmgtdiueylzoqt6pt7hec3pukyptlmohoowvhde4yd.onion/raindrops.git
+  http://repo.or.cz/w/raindrops.git (gitweb mirror)
 
-You may browse the code from the web and download the latest snapshot
-tarballs here:
+Snapshots and tarballs are available.
 
-* https://yhbt.net/raindrops.git
-* http://repo.or.cz/w/raindrops.git (gitweb)
-
-Inline patches (from "git format-patch") to the mailing list are
+Inline patches (from "git format-patch") to the mailbox are
 preferred because they allow code review and comments in the reply to
 the patch.
 
@@ -89,14 +85,17 @@ raindrops is licensed under the LGPL-2.1+
 == Contact
 
 All feedback (bug reports, user/development discussion, patches, pull
-requests) go to the publically archived mailing list:
+requests) go to the publicly archived mailbox:
 mailto:raindrops-public@yhbt.net
 
-Mailing list archives are available over HTTPS and NNTP:
+Mail archives are available over HTTP(S), IMAP(S) and NNTP(S):
 
 * https://yhbt.net/raindrops-public/
 * http://7fh6tueqddpjyxjmgtdiueylzoqt6pt7hec3pukyptlmohoowvhde4yd.onion/raindrops-public/
-* nntp://news.public-inbox.org/inbox.comp.lang.ruby.raindrops
+* imaps://yhbt.net/inbox.comp.lang.ruby.raindrops.0
+* imap://7fh6tueqddpjyxjmgtdiueylzoqt6pt7hec3pukyptlmohoowvhde4yd.onion/inbox.comp.lang.ruby.raindrops.0
+* nntps://news.public-inbox.org/inbox.comp.lang.ruby.raindrops
+* nntp://7fh6tueqddpjyxjmgtdiueylzoqt6pt7hec3pukyptlmohoowvhde4yd.onion/inbox.comp.lang.ruby.raindrops
 
 Since archives are public, scrub sensitive information and
 use anonymity tools such as Tor or Mixmaster if you deem necessary.
