@@ -306,7 +306,7 @@ static void table_set_queued(st_table *table, struct inet_diag_msg *r)
 {
 	struct listen_stats *stats = stats_for(table, r);
 	stats->listener_p = 1;
-	stats->queued = r->idiag_rqueue;
+	stats->queued += r->idiag_rqueue;
 }
 
 /* inner loop of inet_diag, called for every socket returned by netlink */
@@ -328,7 +328,7 @@ static inline void r_acc(struct nogvl_args *args, struct inet_diag_msg *r)
 		if (args->table)
 			table_set_queued(args->table, r);
 		else
-			args->stats.queued = r->idiag_rqueue;
+			args->stats.queued += r->idiag_rqueue;
 	}
 	/*
 	 * we wont get anything else because of the idiag_states filter
