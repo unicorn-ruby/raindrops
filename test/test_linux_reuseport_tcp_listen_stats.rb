@@ -36,7 +36,7 @@ class TestLinuxReuseportTcpListenStats < Test::Unit::TestCase
     listeners = 10
     _, port = new_socket_server(reuseport: true)
     addr = "#{TEST_ADDR}:#{port}"
-    listeners.times do
+    (listeners - 1).times do
       new_socket_server(reuseport: true, port: port)
     end
 
