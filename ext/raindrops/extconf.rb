@@ -4,6 +4,7 @@ require 'shellwords'
 dir_config('atomic_ops')
 have_func('mmap', 'sys/mman.h') or abort 'mmap() not found'
 have_func('munmap', 'sys/mman.h') or abort 'munmap() not found'
+have_func('rb_io_descriptor')
 
 $CPPFLAGS += " -D_GNU_SOURCE "
 have_func('mremap', 'sys/mman.h')
