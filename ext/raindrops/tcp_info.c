@@ -76,7 +76,7 @@ static VALUE alloc(VALUE klass)
  */
 static VALUE init(VALUE self, VALUE io)
 {
-	int fd = my_fileno(io);
+	int fd = my_fileno(rb_io_get_io(io));
 	struct tcp_info *info = DATA_PTR(self);
 	socklen_t len = (socklen_t)sizeof(struct tcp_info);
 	int rc = getsockopt(fd, IPPROTO_TCP, TCP_INFO, info, &len);

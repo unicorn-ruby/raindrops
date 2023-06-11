@@ -627,8 +627,8 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	args.iov[2].iov_len = OPLEN;
 	args.iov[2].iov_base = alloca(page_size);
 	args.table = NULL;
-	if (NIL_P(sock))
-		sock = rb_funcall(cIDSock, id_new, 0);
+	sock = NIL_P(sock) ? rb_funcall(cIDSock, id_new, 0)
+			: rb_io_get_io(sock);
 	args.fd = my_fileno(sock);
 
 	switch (TYPE(addrs)) {
