@@ -212,24 +212,25 @@ static void bug_warn_nogvl(const char *fmt, ...)
 static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 {
 	char *host, *key, *port, *old_key;
-	size_t alloca_len;
 	struct listen_stats *stats;
 	socklen_t hostlen;
 	socklen_t portlen = (socklen_t)sizeof("65535");
 	int n;
 	const void *src = r->id.idiag_src;
+	char buf[INET6_ADDRSTRLEN];
+	size_t buf_len;
 
 	switch (r->idiag_family) {
 	case AF_INET: {
 		hostlen = INET_ADDRSTRLEN;
-		alloca_len = hostlen + portlen;
-		host = key = alloca(alloca_len);
+		buf_len = hostlen + portlen;
+		host = key = buf;
 		break;
 		}
 	case AF_INET6: {
 		hostlen = INET6_ADDRSTRLEN;
-		alloca_len = 1 + hostlen + 1 + portlen;
-		key = alloca(alloca_len);
+		buf_len = 1 + hostlen + 1 + portlen;
+		key = buf;
 		host = key + 1;
 		break;
 		}
@@ -269,7 +270,7 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 	old_key = key;
 
 	if (r->idiag_state == TCP_ESTABLISHED) {
-		n = snprintf(key, alloca_len, "%s:%u",
+		n = snprintf(key, buf_len, "%s:%u",
 				 addr_any(r->idiag_family),
 				 ntohs(r->id.idiag_sport));
 		if (n <= 0) {
@@ -615,7 +616,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 {
 	VALUE rv = rb_hash_new();
 	struct nogvl_args args;
-	VALUE addrs, sock;
+	VALUE addrs, sock, buf;
 
 	rb_scan_args(argc, argv, "02", &addrs, &sock);
 
@@ -624,8 +625,9 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	 * buffer for recvmsg() later, we already checked for
 	 * OPLEN <= page_size at initialization
 	 */
+	buf = rb_str_buf_new(page_size);
 	args.iov[2].iov_len = OPLEN;
-	args.iov[2].iov_base = alloca(page_size);
+	args.iov[2].iov_base = RSTRING_PTR(buf);
 	args.table = NULL;
 	sock = NIL_P(sock) ? rb_funcall(cIDSock, id_new, 0)
 			: rb_io_get_io(sock);
@@ -672,6 +674,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 		rb_hash_foreach(rv, drop_placeholders, Qfalse);
 
 	/* let GC deal with corner cases */
+	rb_str_resize(buf, 0);
 	if (argc < 2) rb_io_close(sock);
 	return rv;
 }
