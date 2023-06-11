@@ -48,4 +48,4 @@ class TestLinuxReuseportTcpListenStats < Test::Unit::TestCase
       assert_equal [0, i+1], all[addr].to_a
     end
   end
-end if RUBY_PLATFORM =~ /linux/
+end if RUBY_PLATFORM =~ /linux/ && Object.const_defined?(:Unicorn)
