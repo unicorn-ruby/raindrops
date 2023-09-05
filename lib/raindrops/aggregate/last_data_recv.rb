@@ -10,6 +10,8 @@ require "socket"
 # Methods wrapped include:
 # - TCPServer#accept
 # - TCPServer#accept_nonblock
+# - Socket#accept
+# - Socket#accept_nonblock
 # - Kgio::TCPServer#kgio_accept
 # - Kgio::TCPServer#kgio_tryaccept
 module Raindrops::Aggregate::LastDataRecv
@@ -33,8 +35,10 @@ module Raindrops::Aggregate::LastDataRecv
 
   # automatically extends any TCPServer objects used by Unicorn
   def self.cornify!
-    Unicorn::HttpServer::LISTENERS.each do |sock|
-      sock.extend(self) if TCPServer === sock
+    Unicorn::HttpServer::LISTENERS.each do |s|
+      if TCPServer === s || (s.instance_of?(Socket) && s.local_address.ip?)
+        s.extend(self)
+      end
     end
   end
 
@@ -60,8 +64,8 @@ module Raindrops::Aggregate::LastDataRecv
     count! super
   end
 
-  def accept_nonblock
-    count! super
+  def accept_nonblock(exception: true)
+    count! super(exception: exception)
   end
 
   # :startdoc:
@@ -72,12 +76,19 @@ module Raindrops::Aggregate::LastDataRecv
   #
   # We require TCP_DEFER_ACCEPT on the listen socket for
   # +last_data_recv+ to be accurate
-  def count!(io)
+  def count!(ret)
+    case ret
+    when :wait_readable
+    when Array # Socket#accept_nonblock
+      io = ret[0]
+    else # TCPSocket#accept_nonblock
+      io = ret
+    end
     if io
       x = Raindrops::TCP_Info.new(io)
       @raindrops_aggregate << x.last_data_recv
     end
-    io
+    ret
   end
 end
 
