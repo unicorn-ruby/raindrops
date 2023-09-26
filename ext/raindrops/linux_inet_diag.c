@@ -636,7 +636,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	switch (TYPE(addrs)) {
 	case T_STRING:
 		rb_hash_aset(rv, addrs, tcp_stats(&args, addrs));
-		return rv;
+		goto out;
 	case T_ARRAY: {
 		long i;
 		long len = RARRAY_LEN(addrs);
@@ -645,7 +645,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 			VALUE cur = rb_ary_entry(addrs, 0);
 
 			rb_hash_aset(rv, cur, tcp_stats(&args, cur));
-			return rv;
+			goto out;
 		}
 		for (i = 0; i < len; i++) {
 			union any_addr check;
@@ -661,6 +661,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 		gen_bytecode_all(&args.iov[2]);
 		break;
 	default:
+		if (argc < 2) rb_io_close(sock);
 		rb_raise(rb_eArgError,
 		         "addr must be an array of strings, a string, or nil");
 	}
@@ -673,6 +674,7 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	if (RHASH_SIZE(rv) > 1)
 		rb_hash_foreach(rv, drop_placeholders, Qfalse);
 
+out:
 	/* let GC deal with corner cases */
 	rb_str_resize(buf, 0);
 	if (argc < 2) rb_io_close(sock);
