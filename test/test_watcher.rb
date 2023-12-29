@@ -1,9 +1,9 @@
 # -*- encoding: binary -*-
 require "test/unit"
-require "rack"
 require "raindrops"
 begin
   require 'aggregate'
+  require 'rack'
 rescue LoadError => e
   warn "W: #{e} skipping #{__FILE__}"
 end
@@ -183,4 +183,4 @@ class TestWatcher < Test::Unit::TestCase
     assert_equal queued_before, headers["X-Last-Peak-At"], "should not change"
     assert_equal start, headers["X-First-Peak-At"]
   end
-end if RUBY_PLATFORM =~ /linux/ && defined?(Aggregate)
+end if RUBY_PLATFORM =~ /linux/ && defined?(Aggregate) && defined?(Rack)

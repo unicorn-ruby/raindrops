@@ -1,3 +1,9 @@
+begin
+  require 'aggregate'
+  have_aggregate = true
+rescue LoadError => e
+  warn "W: #{e} skipping #{__FILE__}"
+end
 require 'test/unit'
 require 'raindrops'
 require 'io/wait'
@@ -40,4 +46,4 @@ class TestLastDataRecv < Test::Unit::TestCase
     assert_equal 1, s.raindrops_aggregate.size
     assert_raise(IO::WaitReadable) { s.accept_nonblock }
   end
-end if RUBY_PLATFORM =~ /linux/
+end if RUBY_PLATFORM =~ /linux/ && have_aggregate
