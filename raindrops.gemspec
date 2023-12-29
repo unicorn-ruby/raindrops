@@ -21,6 +21,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('aggregate', '~> 0.2')
   s.add_development_dependency('test-unit', '~> 3.0')
   s.add_development_dependency('posix_mq', '~> 2.0')
-  s.add_development_dependency('rack', [ '>= 1.2', '< 3.0' ])
+  s.add_development_dependency('rack', [ '>= 1.2', '< 4' ])
   s.licenses = %w(LGPL-2.1+)
 end
