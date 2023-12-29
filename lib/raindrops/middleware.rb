@@ -1,5 +1,6 @@
 # -*- encoding: binary -*-
 require 'raindrops'
+require 'thread'
 
 # Raindrops::Middleware is Rack middleware that allows snapshotting
 # current activity from an HTTP request.  For all operating systems,
@@ -93,11 +94,12 @@ class Raindrops::Middleware
     @app = app
     @stats = opts[:stats] || Stats.new
     @path = opts[:path] || "/_raindrops"
+    @mtx = Mutex.new
     tmp = opts[:listeners]
     if tmp.nil? && defined?(Unicorn) && Unicorn.respond_to?(:listener_names)
       tmp = Unicorn.listener_names
     end
-    @tcp = @unix = nil
+    @nl_sock = @tcp = @unix = nil
 
     if tmp
       @tcp = tmp.grep(/\A.+:\d+\z/)
@@ -129,9 +131,12 @@ class Raindrops::Middleware
            "writing: #{@stats.writing}\n"
 
     if defined?(Raindrops::Linux.tcp_listener_stats)
-      Raindrops::Linux.tcp_listener_stats(@tcp).each do |addr,stats|
-        body << "#{addr} active: #{stats.active}\n" \
-                "#{addr} queued: #{stats.queued}\n"
+      @mtx.synchronize do
+        @nl_sock ||= Raindrops::InetDiagSocket.new
+        Raindrops::Linux.tcp_listener_stats(@tcp, @nl_sock).each do |addr,stats|
+          body << "#{addr} active: #{stats.active}\n" \
+                  "#{addr} queued: #{stats.queued}\n"
+        end
       end if @tcp
       Raindrops::Linux.unix_listener_stats(@unix).each do |addr,stats|
         body << "#{addr} active: #{stats.active}\n" \
