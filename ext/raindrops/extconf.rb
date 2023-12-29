@@ -1,6 +1,7 @@
 require 'mkmf'
 require 'shellwords'
 
+$CFLAGS += ' -O0 ' # faster checks
 dir_config('atomic_ops')
 have_func('mmap', 'sys/mman.h') or abort 'mmap() not found'
 have_func('munmap', 'sys/mman.h') or abort 'munmap() not found'
@@ -158,4 +159,5 @@ Users of Debian-based distros may run:
   apt-get install libatomic-ops-dev
 SRC
 create_header # generate extconf.h to avoid excessively long command-line
+$CFLAGS.sub!(/ -O0 /, '')
 create_makefile('raindrops_ext')
