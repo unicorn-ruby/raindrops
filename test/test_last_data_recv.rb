@@ -9,6 +9,14 @@ require 'raindrops'
 require 'io/wait'
 
 class TestLastDataRecv < Test::Unit::TestCase
+  def setup
+    Raindrops::Aggregate::LastDataRecv.default_aggregate = []
+  end
+
+  def teardown
+    Raindrops::Aggregate::LastDataRecv.default_aggregate = nil
+  end
+
   def test_accept_nonblock_agg
     s = Socket.new(:INET, :STREAM, 0)
     s.listen(128)
